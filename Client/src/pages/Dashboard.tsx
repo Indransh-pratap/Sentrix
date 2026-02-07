@@ -1,23 +1,14 @@
 import { Link, useLocation } from "react-router-dom";
-import { useState } from "react";
-import { Shield, Activity, Sparkles } from "lucide-react";
-import { AiExplanationPanel } from "../components/AiExplanationPanel";
+import { Shield, Activity } from "lucide-react";
 
 export function Dashboard() {
   const location = useLocation();
   const scanResult = location.state as any;
-  const [showAI, setShowAI] = useState(false);
 
   if (!scanResult) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center">
-        <p className="text-muted-foreground mb-4">
-          No scan data found.
-        </p>
-        <Link
-          to="/scan"
-          className="px-6 py-2 rounded-md bg-primary text-primary-foreground"
-        >
+      <div className="min-h-screen flex items-center justify-center">
+        <Link to="/scan" className="px-6 py-3 bg-primary text-white rounded">
           Run New Scan
         </Link>
       </div>
@@ -27,103 +18,73 @@ export function Dashboard() {
   return (
     <div className="min-h-screen bg-background pb-20">
 
-      {/* Top Bar */}
       <nav className="border-b h-16 flex items-center px-6">
         <Link to="/" className="flex gap-2 items-center">
           <Shield className="text-primary" />
           <span className="font-bold">Web3Guard</span>
         </Link>
-
         <span className="ml-auto font-mono text-sm text-muted-foreground">
           {scanResult.target}
         </span>
       </nav>
 
-      <div className="container mx-auto px-4 py-8 grid lg:grid-cols-3 gap-8">
+      <div className="container mx-auto px-4 py-8">
 
-        {/* LEFT PANEL */}
-        <div className="space-y-6">
+        <h2 className="text-xl mb-4 flex gap-2 items-center">
+          <Activity className="text-primary" />
+          Security Findings
+        </h2>
 
-          {/* Score */}
-          {scanResult.score !== undefined && (
-            <div className="bg-card p-6 rounded-xl border">
-              <h3 className="text-muted-foreground mb-2">
-                Security Score
-              </h3>
-              <div
-                className={`text-5xl font-bold font-mono ${
-                  scanResult.score >= 80
-                    ? "text-green-500"
-                    : scanResult.score >= 50
-                    ? "text-yellow-500"
-                    : "text-red-500"
-                }`}
-              >
-                {scanResult.score}
+        {scanResult.findings
+          .filter((v: any) => v && v.title && v.severity)
+          .map((v: any, i: number) => (
+            <div
+              key={i}
+              className="mb-4 p-5 bg-card border rounded-xl"
+            >
+              <div className="flex justify-between items-start mb-2">
+                <h3 className="font-semibold text-lg">{v.title}</h3>
+                <span className={`px-2 py-1 rounded text-xs font-bold uppercase tracking-wider ${
+                  v.severity === 'High' || v.severity === 'Critical' ? 'bg-red-500/20 text-red-500 border border-red-500/30' :
+                  v.severity === 'Medium' ? 'bg-yellow-500/20 text-yellow-500 border border-yellow-500/30' :
+                  'bg-blue-500/20 text-blue-500 border border-blue-500/30'
+                }`}>
+                  {v.severity}
+                </span>
               </div>
-            </div>
-          )}
 
-          {/* AI Explanation (optional) */}
-          {scanResult.aiExplanation && (
-            <>
-              <button
-                onClick={() => setShowAI(true)}
-                className="w-full py-4 rounded-xl bg-primary text-primary-foreground font-semibold flex justify-center gap-2"
-              >
-                <Sparkles />
-                Explain Risk with AI
-              </button>
-
-              {showAI && (
-                <AiExplanationPanel explanation={scanResult.aiExplanation} />
+              {v.detail && (
+                <p className="text-sm text-muted-foreground mt-1 mb-4">
+                  {v.detail}
+                </p>
               )}
-            </>
-          )}
-        </div>
 
-        {/* RIGHT PANEL */}
-        <div className="lg:col-span-2">
-          <h2 className="text-xl mb-4 flex gap-2 items-center">
-            <Activity className="text-primary" />
-            Security Findings
-          </h2>
-
-          {scanResult.findings?.length === 0 ? (
-            <div className="p-6 bg-card border rounded-xl text-muted-foreground">
-              No client-side vulnerabilities detected 🎉
-            </div>
-          ) : (
-            scanResult.findings.map((v: any, i: number) => (
-              <div
-                key={i}
-                className="mb-4 p-5 bg-card border rounded-xl"
-              >
-                <h3 className="font-semibold">
-                  {v.title}
-                </h3>
-
-                <p className="text-sm text-muted-foreground mt-1">
-                  {v.detail || v.summary}
-                </p>
-
-                <p className="text-sm mt-2 text-red-500">
-                  Impact: {v.walletImpact || v.confidenceImpact}
-                </p>
-
-                <p className="text-sm mt-2 text-green-500">
-                  Severity: {v.severity}
-                </p>
+              <div className="grid gap-4 md:grid-cols-2">
+                {v.impact && (
+                  <div className="text-sm bg-red-500/5 p-3 rounded border border-red-500/10">
+                    <span className="font-semibold text-red-400 block mb-1">Impact</span>
+                    <span className="text-muted-foreground">{v.impact}</span>
+                  </div>
+                )}
 
                 {v.fix && (
-                  <p className="text-sm mt-2 text-blue-500">
-                    Fix: {v.fix}
-                  </p>
+                  <div className="text-sm bg-green-500/5 p-3 rounded border border-green-500/10">
+                    <span className="font-semibold text-green-400 block mb-1">Remediation</span>
+                    <span className="text-muted-foreground">{v.fix}</span>
+                  </div>
                 )}
               </div>
-            ))
-          )}
-        </div>
+
+              {v.url && (
+                <div className="mt-4">
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Proof of Concept</span>
+                  <div className="mt-1 text-xs bg-black/20 border border-white/5 p-2 rounded break-all font-mono text-muted-foreground">
+                    {v.url}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
       </div>
     </div>
   );

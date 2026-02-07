@@ -26,11 +26,14 @@ export async function checkBackendHealth(): Promise<boolean> {
 export interface ScanFinding {
   title: string;
   severity: string;
+  impact?: string;
+  detail?: string;
+  fix?: string;
+  url?: string;
+  // Legacy/Web3 specific fields
   walletImpact?: string;
   confidenceImpact?: string;
-  detail?: string;
   summary?: string;
-  fix?: string;
 }
 
 export interface ScanResult {
