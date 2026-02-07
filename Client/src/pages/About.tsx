@@ -10,7 +10,7 @@ export function About() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-16"
         >
-          <h1 className="text-4xl font-bold mb-6 text-white">About Web3Guard</h1>
+          <h1 className="text-4xl font-bold mb-6 text-white">About Sentrix</h1>
           <p className="text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
             The first unified security scanner designed to protect both the user identity layer (Web2) and the asset layer (Web3) of modern applications.
           </p>
@@ -96,7 +96,7 @@ export function About() {
                 A SaaS platform (Web2) might add crypto payments (Web3).
               </p>
               <p className="text-gray-400 leading-relaxed">
-                <strong>Web3Guard</strong> bridges this gap. We don't just check for XSS; we check if that XSS can drain a wallet. 
+                <strong>Sentrix</strong> bridges this gap. We don't just check for XSS; we check if that XSS can drain a wallet. 
                 We don't just check for CSP; we check if it blocks malicious wallet connectors. 
                 It is a holistic approach to client-side defense.
               </p>

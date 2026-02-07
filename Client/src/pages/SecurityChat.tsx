@@ -15,7 +15,7 @@ export function SecurityChat() {
       id: "1",
       role: "assistant",
       content:
-        "Hello! I'm the Web3Guard Security Assistant. Ask me about XSS, CSP, Web2, Web3, or wallet security.",
+        "Hello! I'm the Sentrix Security Assistant. Ask me about XSS, CSP, Web2, Web3, or wallet security.",
     },
   ]);
 
@@ -85,7 +85,7 @@ export function SecurityChat() {
             <Shield className="w-3 h-3" />
             <span>Security Specialist</span>
           </div>
-          <h1 className="text-2xl font-bold text-white">Ask Web3Guard</h1>
+          <h1 className="text-2xl font-bold text-white">Ask Sentrix</h1>
           <p className="text-xs text-muted-foreground mt-2">
             Frontend-only AI • Web2 & Web3 security
           </p>

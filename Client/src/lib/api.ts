@@ -66,7 +66,7 @@ export async function fetchScanResult(scanId: string): Promise<ScanResult> {
 const OPENAI_KEY = import.meta.env.VITE_OPENAI_API_KEY;
 
 const SYSTEM_PROMPT = `
-You are Web3Guard, a frontend security assistant.
+You are Sentrix, a frontend security assistant.
 Explain Web2, Web3, XSS, CSP, wallet spoofing clearly.
 If input is random, ask politely for a security question.
 Be concise, technical, and practical.

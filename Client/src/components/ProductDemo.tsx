@@ -1,38 +1,55 @@
+import { useState, useRef } from 'react';
 import { Play } from 'lucide-react';
 
 export function ProductDemo() {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const handlePlay = () => {
+    if (videoRef.current) {
+      videoRef.current.play();
+      setIsPlaying(true);
+    }
+  };
+
   return (
     <section className="py-24 bg-black/40 border-y border-white/5">
       <div className="container mx-auto px-4 text-center">
-        <h2 className="text-3xl font-bold mb-4 text-white">See Web3Guard in Action</h2>
+        <h2 className="text-3xl font-bold mb-4 text-white">See Sentrix in Action</h2>
         <p className="text-gray-400 mb-12 max-w-2xl mx-auto">
-          A 90-second walkthrough of how Web3Guard scans and explains frontend risks.
+          See how Sentrix scans and explains frontend risks.
         </p>
 
         <div className="max-w-4xl mx-auto relative group">
           {/* Glow Effect */}
           <div className="absolute -inset-1 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-2xl blur-lg opacity-50 group-hover:opacity-75 transition-opacity" />
           
-          {/* Video Placeholder Card */}
+          {/* Video Card */}
           <div className="relative aspect-video bg-black/80 rounded-xl border border-white/10 overflow-hidden flex items-center justify-center shadow-2xl">
-            {/* 
-              TODO: Replace with actual iframe or video tag when available.
-              Example: <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" ... />
-            */}
-            
-            <div className="text-center space-y-4">
-              <div className="w-20 h-20 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mx-auto group-hover:scale-110 transition-transform cursor-pointer backdrop-blur-sm">
-                <Play className="w-8 h-8 text-green-500 ml-1" />
-              </div>
-              <p className="text-sm font-mono text-gray-500 uppercase tracking-wider">Demo Video Coming Soon</p>
-            </div>
+            <video 
+              ref={videoRef}
+              className="w-full h-full object-cover"
+              controls={isPlaying}
+              playsInline
+              onPause={() => setIsPlaying(false)}
+              onEnded={() => setIsPlaying(false)}
+              onPlay={() => setIsPlaying(true)}
+            >
+              <source src="/demo.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
 
-            {/* Fake UI Overlay for realism */}
-            <div className="absolute top-0 left-0 right-0 h-8 bg-white/5 border-b border-white/5 flex items-center px-4 gap-2">
-              <div className="w-3 h-3 rounded-full bg-red-500/20" />
-              <div className="w-3 h-3 rounded-full bg-yellow-500/20" />
-              <div className="w-3 h-3 rounded-full bg-green-500/20" />
-            </div>
+            {/* Play Overlay */}
+            {!isPlaying && (
+              <div 
+                className="absolute inset-0 flex items-center justify-center bg-black/40 hover:bg-black/30 transition-colors cursor-pointer group/btn"
+                onClick={handlePlay}
+              >
+                <div className="w-20 h-20 rounded-full bg-white/10 border border-white/20 flex items-center justify-center backdrop-blur-sm group-hover/btn:scale-110 transition-transform">
+                  <Play className="w-8 h-8 text-white fill-white ml-1" />
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
