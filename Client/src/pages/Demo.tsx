@@ -1,20 +1,82 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Play, RotateCcw, CheckCircle2 } from 'lucide-react';
+import { Play } from 'lucide-react';
 import { ScanTerminal } from '../components/ScanTerminal';
 import { useNavigate } from 'react-router-dom';
 
 export function Demo() {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [status, setStatus] = useState("Initializing...");
   const navigate = useNavigate();
 
   const startDemo = () => {
     setIsPlaying(true);
+    setProgress(0);
   };
 
+  useEffect(() => {
+    if (!isPlaying) return;
+
+    const steps = [
+      { p: 10, s: "Connecting to target: vulnerable-defi.com" },
+      { p: 30, s: "Analyzing frontend assets..." },
+      { p: 50, s: "Checking for XSS vulnerabilities..." },
+      { p: 70, s: "Scanning for wallet drainers..." },
+      { p: 85, s: "Verifying CSP headers..." },
+      { p: 100, s: "Scan completed. Generating report..." },
+    ];
+
+    let currentStep = 0;
+
+    const interval = setInterval(() => {
+      if (currentStep >= steps.length) {
+        clearInterval(interval);
+        return;
+      }
+
+      const { p, s } = steps[currentStep];
+      setProgress(p);
+      setStatus(s);
+      currentStep++;
+    }, 800);
+
+    return () => clearInterval(interval);
+  }, [isPlaying]);
+
   const handleDemoComplete = () => {
+    const mockResult = {
+      target: "https://vulnerable-defi.com",
+      time: new Date().toISOString(),
+      findings: [
+        {
+          title: "Reflected XSS in Search Bar",
+          severity: "High",
+          detail: "Reflected Cross-Site Scripting vulnerability found in parameter 'q'.",
+          impact: "Attacker can execute malicious scripts in the user's browser, potentially stealing cookies or session tokens.",
+          fix: "Sanitize and encode all user-controlled input.",
+          url: "https://vulnerable-defi.com/search?q=<script>alert(1)</script>"
+        },
+        {
+          title: "Missing Content-Security-Policy",
+          severity: "Medium",
+          detail: "The website does not have a Content-Security-Policy (CSP) header.",
+          impact: "Increases risk of XSS and data injection attacks.",
+          fix: "Add a strict Content-Security-Policy header to response."
+        },
+        {
+          title: "Wallet Drainer Script Detected",
+          severity: "Critical",
+          detail: "Suspicious script 'drain.js' found attempting to access window.ethereum.",
+          impact: "Direct risk of user funds being stolen via malicious transaction signing.",
+          fix: "Remove the malicious script immediately and audit all third-party dependencies.",
+          url: "https://vulnerable-defi.com/assets/js/drain.js"
+        }
+      ]
+    };
+
     setTimeout(() => {
-      navigate('/dashboard');
+      navigate('/dashboard', { state: mockResult });
     }, 1000);
   };
 
@@ -63,7 +125,12 @@ export function Demo() {
           </motion.div>
         ) : (
           <div className="w-full max-w-3xl mx-auto">
-            <ScanTerminal onComplete={handleDemoComplete} />
+            <ScanTerminal
+              progress={progress}
+              status={status}
+              onComplete={handleDemoComplete}
+            />
+
             <p className="mt-8 text-muted-foreground animate-pulse">
               Running heuristic analysis...
             </p>
