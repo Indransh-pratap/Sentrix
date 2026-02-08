@@ -2,16 +2,16 @@ const dotenv = require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const scanRoutes = require("./routes/scan.routes");
-const aiRoutes = require("./routes/ai.routes");
+// const aiRoutes = require("./routes/ai.routes");
 
 const app = express();
 
 
 
-console.log(
-  "OPENAI KEY:",
-  process.env.OPENAI_API_KEY ? "LOADED ✅" : "NOT LOADED ❌"
-);
+// console.log(
+//   "OPENAI KEY:",
+//   process.env.OPENAI_API_KEY ? "LOADED ✅" : "NOT LOADED ❌"
+// );
 
 
 app.use(cors());
@@ -28,7 +28,7 @@ app.get("/health", (req, res) => {
 });
 
 app.use("/scan", scanRoutes);
-app.use("/api/ai", aiRoutes); 
+// app.use("/api/ai", aiRoutes); 
 const PORT = 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);

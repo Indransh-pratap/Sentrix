@@ -26,7 +26,7 @@ export function Team() {
 
           />
           <TeamCard 
-            name="Deppak khrab"
+            name="Deepak Kharb"
             role="Application security" 
             icon={Code} 
             color="text-blue-500"

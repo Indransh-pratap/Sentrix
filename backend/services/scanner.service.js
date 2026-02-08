@@ -1,12 +1,14 @@
 const reconScan = require("./recon.service");
 const xssScan = require("./xss.service");
 const sqliScan = require("./sqli.service");
+const csrfScan = require("./csrf.service");
 
 const runScanner = async (url) => {
   const results = {
     recon: [],
     xss: [],
     sqli: [],
+    csrf:[],
   };
 
   try {
@@ -29,6 +31,12 @@ const runScanner = async (url) => {
   } catch (e) {
     console.error("[SQLi Error]", e.message);
   }
+   try {
+    const csrf = await csrfScan(url);
+    if (Array.isArray(csrf)) results.csrf = csrf;
+  } catch (e) {
+    console.error("[CSRF Error]", e.message);
+  }
 
   return {
     target: url,
@@ -36,7 +44,8 @@ const runScanner = async (url) => {
     findings: [
       ...results.recon,
       ...results.xss,
-      ...results.sqli
+      ...results.sqli,
+      ...results.csrf,
     ],
   };
 };
