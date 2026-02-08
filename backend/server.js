@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const scanRoutes = require("./routes/scan.routes");
+const aiRoutes = require("./routes/ai.routes");
 
 const app = express();
 
@@ -19,7 +20,7 @@ app.get("/health", (req, res) => {
 });
 
 app.use("/scan", scanRoutes);
-
+app.use("/api/ai", aiRoutes); 
 const PORT = 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);

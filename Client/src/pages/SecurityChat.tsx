@@ -15,13 +15,13 @@ export function SecurityChat() {
       id: "1",
       role: "assistant",
       content:
-        "Hello! I'm the Sentrix Security Assistant. Ask me about XSS, CSP, Web2, Web3, or wallet security.",
+        "Hello! I'm Sentrix Security AI. I only answer Web2 & Web3 security questions.",
     },
   ]);
 
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-  const [cooldown, setCooldown] = useState(false); // 🔥 anti-429
+  const [cooldown, setCooldown] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -35,7 +35,7 @@ export function SecurityChat() {
     const userMsg: Message = {
       id: Date.now().toString(),
       role: "user",
-      content: input,
+      content: input.trim(),
     };
 
     setMessages((prev) => [...prev, userMsg]);
@@ -43,24 +43,25 @@ export function SecurityChat() {
     setIsTyping(true);
     setCooldown(true);
 
-    // ⏳ 10s cooldown to avoid rate limit
-    setTimeout(() => setCooldown(false), 10000);
+    // small UX cooldown (backend already rate-limited)
+    setTimeout(() => setCooldown(false), 4000);
 
     try {
       const aiReply = await askSecurityAI(userMsg.content);
 
-      const aiMsg: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: aiReply,
-      };
-
-      setMessages((prev) => [...prev, aiMsg]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: (Date.now() + 1).toString(),
+          role: "assistant",
+          content: aiReply,
+        },
+      ]);
     } catch (err: any) {
       const msg =
-        err.message === "RATE_LIMIT"
-          ? "⚠️ Rate limit hit. Please wait 10 seconds."
-          : "⚠️ AI service unavailable. Please try again.";
+        err?.message === "AI_FAILED"
+          ? "⚠️ Security AI unavailable. Try again shortly."
+          : "⚠️ Request blocked. Please slow down.";
 
       setMessages((prev) => [
         ...prev,
@@ -83,11 +84,11 @@ export function SecurityChat() {
         <div className="text-center mb-6">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-medium mb-2">
             <Shield className="w-3 h-3" />
-            <span>Security Specialist</span>
+            <span>Security Specialist AI</span>
           </div>
           <h1 className="text-2xl font-bold text-white">Ask Sentrix</h1>
           <p className="text-xs text-muted-foreground mt-2">
-            Frontend-only AI • Web2 & Web3 security
+            Backend-powered AI • Web2 & Web3 Vulnerability Expert
           </p>
         </div>
 
@@ -153,7 +154,7 @@ export function SecurityChat() {
               <input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask about XSS, CSP, Web2, Web3, Wallet Security..."
+                placeholder="Ask about XSS, SQLi, CSP, Wallet attacks..."
                 className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-5 pr-12 text-white focus:outline-none"
               />
               <button
