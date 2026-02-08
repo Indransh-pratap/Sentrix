@@ -18,7 +18,7 @@ const reconScan = async (url) => {
         title: "Server Header Disclosure",
         detail: res.headers.server,
         impact: "Reveals server technology information",
-        severity: "Low",
+        severity: "Info",
         fix: "Hide or remove server version headers",
       });
     }

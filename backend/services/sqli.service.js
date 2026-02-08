@@ -2,15 +2,15 @@ const axios = require("axios");
 const { URL } = require("url");
 
 const SQL_ERRORS = [
-  "sql syntax",
-  "mysql",
-  "pdoexception",
-  "ora-",
-  "unterminated",
-  "unclosed quotation",
-  "syntax error",
-  "odbc",
-  "sqlstate"
+  "You have an error in your SQL syntax",
+  "check the manual that corresponds to your MySQL server version",
+  "PDOException",
+  "ORA-00936",
+  "ORA-00933",
+  "PostgreSQL query failed",
+  "SQLSTATE[HY000]",
+  "Microsoft OLE DB Provider for ODBC Drivers",
+  "Unclosed quotation mark after the character string"
 ];
 
 const PAYLOADS = [
