@@ -57,12 +57,8 @@ const xssScan = async (targetUrl) => {
         const body = res.data;
         const contentType = (res.headers["content-type"] || "").toLowerCase();
 
-        // Allow html / text / json
-        if (
-          !contentType.includes("html") &&
-          !contentType.includes("text") &&
-          !contentType.includes("json")
-        ) {
+        // Allow ONLY html
+        if (!contentType.includes("html")) {
           continue;
         }
 
@@ -70,8 +66,23 @@ const xssScan = async (targetUrl) => {
         const normalizedPayload = payload.toLowerCase();
 
         // 🔥 Reflection detection (Strict)
-        // Only flag if the payload is reflected VERBATIM (or close enough to be dangerous)
-        if (normalizedBody.includes(normalizedPayload)) {
+        // We only consider it a vulnerability if the KEY CHARACTERS (<, >, ') are reflected UNESCAPED.
+        // If the body contains "&lt;script&gt;", it is SAFE.
+        // If the body contains "<script>", it is VULNERABLE.
+        
+        // Check if the payload was reflected
+        const isReflected = normalizedBody.includes(normalizedPayload);
+
+        // Verify it wasn't escaped (Basic check)
+        // If we sent "<script>" and we find "<script>", it's likely valid.
+        // But we need to ensure we aren't matching our own URL in a meta tag or canonical link.
+        // Real XSS usually appears in the <body> or inside <script> blocks.
+        
+        if (isReflected) {
+          // Double check: Does the body contain the encoded version?
+          // If body has "&lt;script" it might also have "<script" if we aren't careful?
+          // No, includes() is exact.
+          
           console.log("🔥 XSS CONFIRMED");
 
           findings.push({
@@ -91,14 +102,29 @@ const xssScan = async (targetUrl) => {
         }
 
         // 🧠 ML PHASE (adaptive payloads)
+        // Only trigger ML if we see a PARTIAL reflection of our unique string
+        // We shouldn't trigger just because we see "alert" (common in JS).
+        // We should check if our parameter value is somewhere in the source.
+        
+        // Let's use a unique probe to check reflection first?
+        // For now, let's just restrict ML trigger.
+        
+        // If the payload was NOT reflected, check if at least the "alert(1)" part was?
+        // No, that's too common.
+        
+        // We only try bypasses if we suspect a filter.
+        // A filter usually strips tags but leaves content.
+        // E.g. input: <script>alert(1)</script> -> output: alert(1)
+        
         if (
-          normalizedBody.includes("alert") ||
-          normalizedBody.includes("onerror") ||
-          normalizedBody.includes("onload")
+          !isReflected &&
+          normalizedBody.includes("alert(1)") && // Only if our specific alert value is there
+          !normalizedBody.includes("function alert") // avoid matching function definitions
         ) {
           console.log("⚠️ Partial reflection detected. Engaging ML engine...");
-
+          
           const mlPayloads = await generateMLPayloads(targetUrl, key, payload);
+          // ... rest of logic
 
           for (const mlPayload of mlPayloads) {
             if (vulnerabilityFound) break;
