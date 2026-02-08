@@ -4,9 +4,7 @@ import axios from "axios";
    BASE CONFIG
 ====================================================== */
 
-// 👉 Local OR deployed backend
 const API_BASE = "http://localhost:5000";
-// const API_BASE = "https://your-backend.onrender.com";
 
 /* ======================================================
    BACKEND – HEALTH
@@ -32,8 +30,7 @@ export interface ScanFinding {
   detail?: string;
   fix?: string;
   url?: string;
-
-  // Web3 / legacy
+  // Legacy/Web3 specific fields
   walletImpact?: string;
   confidenceImpact?: string;
   summary?: string;
@@ -49,23 +46,58 @@ export interface ScanResult {
 
 export async function scanWebsite(url: string): Promise<ScanResult> {
   const response = await axios.post(`${API_BASE}/scan`, { url });
+  return response.data; // 🔥 backend ka exact response
+}
+
+/* 
+OPTIONAL (future use)
+Only if you later switch to scanId based flow
+*/
+export async function fetchScanResult(scanId: string): Promise<ScanResult> {
+  const response = await axios.get(`${API_BASE}/scan/${scanId}`);
   return response.data;
 }
 
 /* ======================================================
-   FRONTEND → BACKEND → AI (SECURE)
+   FRONTEND – SECURITY CHAT (OPENAI ONLY)
+   ❌ NO BACKEND DEPENDENCY
 ====================================================== */
 
-export async function askSecurityAI(question: string): Promise<string> {
-  const res = await axios.post(
-    `${API_BASE}/api/ai/chat`,
-    { message: question },
-    { timeout: 15000 }
-  );
+const OPENAI_KEY = import.meta.env.VITE_OPENAI_API_KEY;
 
-  if (!res.data?.reply) {
-    throw new Error("AI_FAILED");
+const SYSTEM_PROMPT = `
+You are Sentrix, a frontend security assistant.
+Explain Web2, Web3, XSS, CSP, wallet spoofing clearly.
+If input is random, ask politely for a security question.
+Be concise, technical, and practical.
+`;
+
+export async function askSecurityAI(question: string): Promise<string> {
+  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${OPENAI_KEY}`,
+    },
+    body: JSON.stringify({
+      model: "gpt-4o-mini",
+      temperature: 0.3,
+      max_tokens: 300,
+      messages: [
+        { role: "system", content: SYSTEM_PROMPT },
+        { role: "user", content: question },
+      ],
+    }),
+  });
+
+  if (res.status === 429) {
+    throw new Error("RATE_LIMIT");
   }
 
-  return res.data.reply;
+  if (!res.ok) {
+    throw new Error("OPENAI_FAILED");
+  }
+
+  const data = await res.json();
+  return data.choices[0].message.content;
 }

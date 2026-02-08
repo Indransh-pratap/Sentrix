@@ -1,16 +1,39 @@
 const reconScan = require("./recon.service");
 const xssScan = require("./xss.service");
+const sqliScan = require("./sqli.service");
 
 const runScanner = async (url) => {
-  const findings = [];
+  const results = {
+    recon: [],
+    xss: [],
+    sqli: [],
+  };
 
-  findings.push(...(await reconScan(url)));
-  findings.push(...(await xssScan(url)));
+  try {
+    const recon = await reconScan(url);
+    if (Array.isArray(recon)) results.recon = recon;
+  } catch (e) {
+    console.error("[Recon Error]", e.message);
+  }
+
+  try {
+    const xss = await xssScan(url);
+    if (Array.isArray(xss)) results.xss = xss;
+  } catch (e) {
+    console.error("[XSS Error]", e.message);
+  }
+
+  try {
+    const sqli = await sqliScan(url);
+    if (Array.isArray(sqli)) results.sqli = sqli;
+  } catch (e) {
+    console.error("[SQLi Error]", e.message);
+  }
 
   return {
     target: url,
     time: new Date().toISOString(),
-    findings,
+    vulnerabilities: results,
   };
 };
 
