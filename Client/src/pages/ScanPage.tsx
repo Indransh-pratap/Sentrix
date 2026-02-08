@@ -35,15 +35,23 @@ export function ScanPage() {
 
     try {
       setStatus("Analyzing frontend assets");
-      setProgress(35);
+      
+      // Simulate smoother progress
+      const progressInterval = setInterval(() => {
+        setProgress((prev) => {
+          if (prev >= 95) {
+            clearInterval(progressInterval);
+            return 95;
+          }
+          return prev + Math.floor(Math.random() * 5) + 1;
+        });
+      }, 800);
 
       const scanResult = await scanWebsite(url.trim());
-
-      setStatus("Detecting vulnerabilities");
-      setProgress(70);
-
-      setStatus("Finalizing report");
+      
+      clearInterval(progressInterval);
       setProgress(100);
+      setStatus("Finalizing report");
 
       setTimeout(() => {
         navigate("/dashboard", {

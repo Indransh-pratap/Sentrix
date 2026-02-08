@@ -59,45 +59,21 @@ export async function fetchScanResult(scanId: string): Promise<ScanResult> {
 }
 
 /* ======================================================
-   FRONTEND – SECURITY CHAT (OPENAI ONLY)
-   ❌ NO BACKEND DEPENDENCY
+   FRONTEND – SECURITY CHAT (BACKEND RELAY)
+   ✅ SECURE: Calls backend, backend calls OpenAI
 ====================================================== */
 
-const OPENAI_KEY = import.meta.env.VITE_OPENAI_API_KEY;
-
-const SYSTEM_PROMPT = `
-You are Sentrix, a frontend security assistant.
-Explain Web2, Web3, XSS, CSP, wallet spoofing clearly.
-If input is random, ask politely for a security question.
-Be concise, technical, and practical.
-`;
-
 export async function askSecurityAI(question: string): Promise<string> {
-  const res = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${OPENAI_KEY}`,
-    },
-    body: JSON.stringify({
-      model: "gpt-4o-mini",
-      temperature: 0.3,
-      max_tokens: 300,
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        { role: "user", content: question },
-      ],
-    }),
-  });
+  // Use axios to call our own backend
+  const res = await axios.post(
+    `${API_BASE}/api/ai/chat`,
+    { message: question },
+    { timeout: 15000 }
+  );
 
-  if (res.status === 429) {
-    throw new Error("RATE_LIMIT");
+  if (!res.data?.reply) {
+    throw new Error("AI_FAILED");
   }
 
-  if (!res.ok) {
-    throw new Error("OPENAI_FAILED");
-  }
-
-  const data = await res.json();
-  return data.choices[0].message.content;
+  return res.data.reply;
 }

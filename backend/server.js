@@ -6,6 +6,14 @@ const aiRoutes = require("./routes/ai.routes");
 
 const app = express();
 
+
+
+console.log(
+  "OPENAI KEY:",
+  process.env.OPENAI_API_KEY ? "LOADED ✅" : "NOT LOADED ❌"
+);
+
+
 app.use(cors());
 app.use(express.json());
 

@@ -1,4 +1,4 @@
-import OpenAI from "openai";
+const OpenAI = require("openai");
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -24,7 +24,7 @@ RULES (STRICT):
 - NO general chit-chat
 `;
 
-export async function securityChat(req, res) {
+async function securityChat(req, res) {
   try {
     const { message } = req.body;
 
@@ -50,3 +50,5 @@ export async function securityChat(req, res) {
     res.status(500).json({ error: "AI_FAILED" });
   }
 }
+
+module.exports = { securityChat };

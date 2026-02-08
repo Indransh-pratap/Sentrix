@@ -69,14 +69,9 @@ const xssScan = async (targetUrl) => {
         const normalizedBody = body.toLowerCase();
         const normalizedPayload = payload.toLowerCase();
 
-        // 🔥 Reflection detection (realistic)
-        if (
-          normalizedBody.includes(normalizedPayload) ||
-          normalizedBody.includes("alert(1)") ||
-          normalizedBody.includes("<script") ||
-          normalizedBody.includes("onerror") ||
-          normalizedBody.includes("onload")
-        ) {
+        // 🔥 Reflection detection (Strict)
+        // Only flag if the payload is reflected VERBATIM (or close enough to be dangerous)
+        if (normalizedBody.includes(normalizedPayload)) {
           console.log("🔥 XSS CONFIRMED");
 
           findings.push({

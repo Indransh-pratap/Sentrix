@@ -33,7 +33,11 @@ const runScanner = async (url) => {
   return {
     target: url,
     time: new Date().toISOString(),
-    vulnerabilities: results,
+    findings: [
+      ...results.recon,
+      ...results.xss,
+      ...results.sqli
+    ],
   };
 };
 
