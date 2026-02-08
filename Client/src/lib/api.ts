@@ -4,7 +4,7 @@ import axios from "axios";
    BASE CONFIG
 ====================================================== */
 
-const API_BASE = "https://sentrix-backend-8j4r.onrender.com";
+const API_BASE = "http://localhost:5000";
 
 /* ======================================================
    BACKEND – HEALTH

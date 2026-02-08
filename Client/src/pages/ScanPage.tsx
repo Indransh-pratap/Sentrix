@@ -18,9 +18,11 @@ export function ScanPage() {
 
   const handleScan = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!url) return;
+    if (!url.trim()) return;
 
     setScanning(true);
+    setBackendError(false);
+
     setProgress(5);
     setStatus("Connecting to security engine");
 
@@ -35,9 +37,9 @@ export function ScanPage() {
       setStatus("Analyzing frontend assets");
       setProgress(35);
 
-      const scanResult = await scanWebsite(url);
+      const scanResult = await scanWebsite(url.trim());
 
-      setStatus("Detecting client-side vulnerabilities");
+      setStatus("Detecting vulnerabilities");
       setProgress(70);
 
       setStatus("Finalizing report");
@@ -48,7 +50,6 @@ export function ScanPage() {
           state: scanResult, // 🔥 single source of truth
         });
       }, 600);
-
     } catch (err) {
       console.error(err);
       setScanning(false);
@@ -64,6 +65,7 @@ export function ScanPage() {
     <div className="min-h-screen bg-background pt-24 pb-20">
       <div className="container mx-auto px-4 max-w-3xl">
 
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -73,10 +75,11 @@ export function ScanPage() {
             Security Scanner
           </h1>
           <p className="text-muted-foreground">
-            Scan Web2 & Web3 frontends for client-side risks.
+            Scan Web2 & Web3 applications for security risks.
           </p>
         </motion.div>
 
+        {/* Scan Form */}
         {!scanning ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.96 }}
@@ -94,8 +97,8 @@ export function ScanPage() {
                   <input
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
-                    placeholder="Enter Website or dApp URL"
-                    className="w-full bg-background border rounded-lg py-3 pl-12 pr-4 font-mono"
+                    placeholder="https://example.com"
+                    className="w-full bg-background border rounded-lg py-3 pl-12 pr-4 font-mono focus:outline-none focus:ring-2 focus:ring-primary/40"
                   />
                 </div>
               </div>
@@ -103,14 +106,14 @@ export function ScanPage() {
               <div className="p-4 bg-muted border rounded-lg flex gap-3">
                 <AlertTriangle className="w-5 h-5 text-yellow-500 mt-0.5" />
                 <p className="text-sm text-muted-foreground">
-                  Passive scan only. No exploitation performed.
+                  Passive scan only. No exploitation or intrusive testing is performed.
                 </p>
               </div>
 
               <button
                 type="submit"
-                disabled={!url}
-                className="w-full bg-primary text-primary-foreground font-semibold py-4 rounded-lg flex justify-center gap-2 disabled:opacity-50"
+                disabled={!url.trim()}
+                className="w-full bg-primary text-primary-foreground font-semibold py-4 rounded-lg flex justify-center items-center gap-2 disabled:opacity-50 hover:bg-primary/90 transition-colors"
               >
                 Run Security Scan
                 <ArrowRight />
@@ -119,6 +122,7 @@ export function ScanPage() {
           </motion.div>
         ) : (
           <>
+            {/* Scan Progress */}
             <ScanTerminal progress={progress} status={status} />
 
             <div className="mt-8 text-center">
