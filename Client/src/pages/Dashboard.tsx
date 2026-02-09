@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
-import { Shield, Activity } from "lucide-react";
+import { Shield, Activity, Download } from "lucide-react";
+import { downloadReport } from "../lib/api";
 
 export function Dashboard() {
   const location = useLocation();
@@ -21,6 +22,12 @@ export function Dashboard() {
     ...(scanResult.vulnerabilities?.sqli || []),
   ];
 
+  // Re-construct the full object for PDF generation
+  const fullResult = {
+    ...scanResult,
+    findings: findings
+  };
+
   return (
     <div className="min-h-screen bg-background pb-20">
 
@@ -35,6 +42,14 @@ export function Dashboard() {
           <span className="font-mono text-sm text-muted-foreground hidden md:block px-3 py-1 bg-muted rounded-full border border-border/50">
             {scanResult.target}
           </span>
+
+          <button
+            onClick={() => downloadReport(fullResult)}
+            className="text-sm font-medium bg-secondary text-secondary-foreground px-4 py-2 rounded-lg hover:bg-secondary/90 transition-colors flex items-center gap-2 border border-border"
+          >
+            <Download className="w-4 h-4" />
+            PDF Report
+          </button>
 
           <Link
             to="/scan"

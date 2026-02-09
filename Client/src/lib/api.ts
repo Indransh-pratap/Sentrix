@@ -49,13 +49,36 @@ export async function scanWebsite(url: string): Promise<ScanResult> {
   return response.data; // 🔥 backend ka exact response
 }
 
-/* 
-OPTIONAL (future use)
-Only if you later switch to scanId based flow
-*/
-export async function fetchScanResult(scanId: string): Promise<ScanResult> {
-  const response = await axios.get(`${API_BASE}/scan/${scanId}`);
-  return response.data;
+export async function downloadReport(scanResult: ScanResult) {
+  try {
+    const response = await axios.post(`${API_BASE}/scan/pdf`, scanResult, {
+      responseType: 'blob', // Important for binary data
+    });
+    
+    // Create a Blob from the PDF Stream
+    const file = new Blob([response.data], { type: 'application/pdf' });
+    
+    // Build a URL from the file
+    const fileURL = URL.createObjectURL(file);
+    
+    // Open the URL on new Window
+    const pdfWindow = window.open();
+    if (pdfWindow) {
+      pdfWindow.location.href = fileURL;
+    }
+    
+    // Optional: Trigger download directly
+    const link = document.createElement('a');
+    link.href = fileURL;
+    link.setAttribute('download', `sentrix-report-${Date.now()}.pdf`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+  } catch (error) {
+    console.error("PDF Download failed:", error);
+    alert("Failed to download PDF report");
+  }
 }
 
 /* ======================================================

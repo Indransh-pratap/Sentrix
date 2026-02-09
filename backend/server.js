@@ -1,7 +1,7 @@
 const dotenv = require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const serverless = require("serverless-http"); // Added for Netlify
+// const serverless = require("serverless-http"); // Not needed for Vercel Express pattern
 
 const scanRoutes = require("./routes/scan.routes");
 // const aiRoutes = require("./routes/ai.routes"); // Uncomment if you want AI routes
@@ -38,6 +38,6 @@ app.listen(PORT, () => {
 */
 
 // ==========================================
-//  SERVERLESS EXPORT (For Netlify)
+//  SERVERLESS EXPORT (For Vercel)
 // ==========================================
-module.exports.handler = serverless(app);
+module.exports = app;
