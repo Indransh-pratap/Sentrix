@@ -4,11 +4,14 @@ import axios from "axios";
    BASE CONFIG
 ====================================================== */
 
-// Automatically switch between localhost and Vercel/Production
-// We use a relative path '/api' in production to leverage Vercel's rewrites
-const API_BASE = window.location.hostname === "localhost" 
-  ? "http://localhost:5000/api" 
-  : "/api";
+// Uses VITE_API_BASE from .env files
+// .env.local -> http://localhost:5000/api
+// .env.production -> https://sentrix-backend.vercel.app/api
+const API_BASE = import.meta.env.VITE_API_BASE;
+
+if (!API_BASE) {
+  console.error("VITE_API_BASE is missing! Check your .env configuration.");
+}
 
 /* ======================================================
    BACKEND – HEALTH
