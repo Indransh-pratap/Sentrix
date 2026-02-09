@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
+require("dotenv").config(); // Load env vars for local dev
 
 const scanRoutes = require("./routes/scan.routes");
 const geminiRoutes = require("./routes/gemini.routes");
@@ -22,8 +23,8 @@ app.use(express.static(clientPath));
 app.use("/scan", scanRoutes);
 app.use("/gemini", geminiRoutes);
 
-// react fallback
-app.get("/*", (req, res) => {
+// ✅ react fallback (NODE 22 SAFE)
+app.use("*", (req, res) => {
   res.sendFile(path.join(clientPath, "index.html"));
 });
 
