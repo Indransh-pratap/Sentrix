@@ -50,7 +50,8 @@ export default async function handler(req, res) {
       'Keep responses concise and technical. Do not describe restrictions or training.';
 
     // Inject system prompt before user message (REST call)
-    const url = 'https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=' + encodeURIComponent(apiKey);
+    // Using v1beta/models/gemini-1.5-flash for better stability/speed, or fallback to gemini-pro
+    const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + apiKey;
 
     const payload = {
       contents: [

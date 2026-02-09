@@ -1,11 +1,10 @@
-const { GoogleGenerativeAI } = require("@google/generative-ai");
-
 // Minimal local Gemini chat controller (Express LOCAL)
-// Matches logic with Vercel serverless function
+// Uses native fetch to match Vercel serverless logic exactly
 exports.chatWithGemini = async (req, res) => {
   try {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
+      console.error("Missing GEMINI_API_KEY");
       return res.status(500).json({ error: 'Missing GEMINI_API_KEY' });
     }
 
@@ -28,26 +27,34 @@ exports.chatWithGemini = async (req, res) => {
       'If the user asks anything outside that scope, respond exactly: "This assistant is restricted to project and vulnerability-related queries." ' +
       'Keep responses concise and technical. Do not describe restrictions or training.';
 
-    // Use SDK if available, or fetch. The project has @google/generative-ai installed.
-    // We'll use the SDK here for simplicity since it's already set up in the project.
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    // Use REST API directly (Node 18+ has global fetch)
+    const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + apiKey;
 
-    const chat = model.startChat({
-      history: [
+    const payload = {
+      contents: [
         {
-          role: "user",
-          parts: [{ text: systemPrompt }],
-        },
-        {
-          role: "model",
-          parts: [{ text: "Understood. I am Sentrix Assistant." }],
-        },
-      ],
+          role: 'user',
+          parts: [{ text: systemPrompt + '\n\nUser: ' + userMessage }]
+        }
+      ]
+    };
+
+    const r = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
     });
 
-    const result = await chat.sendMessage(userMessage);
-    const reply = result.response.text();
+    if (!r.ok) {
+      const errText = await r.text();
+      console.error("Gemini API Error:", errText);
+      return res.status(502).json({ error: 'Gemini request failed', details: errText });
+    }
+
+    const data = await r.json();
+    const reply =
+      data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+      'This assistant is restricted to project and vulnerability-related queries.';
 
     res.json({ reply });
 
