@@ -1,17 +1,16 @@
 import axios from "axios";
 
 /* ======================================================
-   BASE CONFIG
+   BASE CONFIG (NO ENV VARIABLES)
 ====================================================== */
 
-// Uses VITE_API_BASE from .env files
-// .env.local -> http://localhost:5000/api
-// .env.production -> https://sentrix-backend.vercel.app/api
-const API_BASE = import.meta.env.VITE_API_BASE;
+// Auto switch between localhost (dev) and Railway (prod)
+const API_BASE =
+  window.location.hostname === "localhost"
+    ? "http://localhost:5000"
+    : "https://sentrix-production.up.railway.app";
 
-if (!API_BASE) {
-  console.error("VITE_API_BASE is missing! Check your .env configuration.");
-}
+console.log("🔗 API BASE:", API_BASE);
 
 /* ======================================================
    BACKEND – HEALTH
@@ -19,9 +18,12 @@ if (!API_BASE) {
 
 export async function checkBackendHealth(): Promise<boolean> {
   try {
-    const res = await axios.get(`${API_BASE}/health`, { timeout: 5000 });
+    const res = await axios.get(`${API_BASE}/health`, {
+      timeout: 5000,
+    });
     return res.status === 200;
-  } catch {
+  } catch (error) {
+    console.error("Health check failed:", error);
     return false;
   }
 }
@@ -37,7 +39,6 @@ export interface ScanFinding {
   detail?: string;
   fix?: string;
   url?: string;
-  // Legacy/Web3 specific fields
   walletImpact?: string;
   confidenceImpact?: string;
   summary?: string;
@@ -53,62 +54,73 @@ export interface ScanResult {
 
 export async function scanWebsite(url: string): Promise<ScanResult> {
   const response = await axios.post(`${API_BASE}/scan`, { url });
-  return response.data; // 🔥 backend ka exact response
+  return response.data;
 }
+
+/* ======================================================
+   BACKEND – PDF REPORT
+====================================================== */
 
 export async function downloadReport(scanResult: ScanResult) {
   try {
-    const response = await axios.post(`${API_BASE}/scan/pdf`, scanResult, {
-      responseType: 'blob', // Important for binary data
+    const response = await axios.post(
+      `${API_BASE}/scan/pdf`,
+      scanResult,
+      {
+        responseType: "blob",
+        timeout: 20000,
+      }
+    );
+
+    const file = new Blob([response.data], {
+      type: "application/pdf",
     });
-    
-    // Create a Blob from the PDF Stream
-    const file = new Blob([response.data], { type: 'application/pdf' });
-    
-    // Build a URL from the file
+
     const fileURL = URL.createObjectURL(file);
-    
-    // Open the URL on new Window
+
+    // Open PDF in new tab
     const pdfWindow = window.open();
     if (pdfWindow) {
       pdfWindow.location.href = fileURL;
     }
-    
-    // Optional: Trigger download directly
-    const link = document.createElement('a');
+
+    // Force download
+    const link = document.createElement("a");
     link.href = fileURL;
-    link.setAttribute('download', `sentrix-report-${Date.now()}.pdf`);
+    link.download = `sentrix-report-${Date.now()}.pdf`;
     document.body.appendChild(link);
     link.click();
     link.remove();
 
   } catch (error) {
-    console.error("PDF Download failed:", error);
+    console.error("PDF download failed:", error);
     alert("Failed to download PDF report");
   }
 }
 
 /* ======================================================
-   FRONTEND – SECURITY CHAT (BACKEND RELAY)
-   ✅ SECURE: Calls backend, backend calls OpenAI
+   SECURITY CHAT (BACKEND → GEMINI)
 ====================================================== */
 
 export async function askSecurityAI(question: string): Promise<string> {
-  // Now simply redirects to Gemini
   return askGeminiAI(question);
 }
 
-// New Gemini Chat Function
 export async function askGeminiAI(question: string): Promise<string> {
-  const res = await axios.post(
-    `${API_BASE}/gemini/chat`,
-    { message: question },
-    { timeout: 20000 }
-  );
+  try {
+    const res = await axios.post(
+      `${API_BASE}/gemini/chat`,
+      { message: question },
+      { timeout: 20000 }
+    );
 
-  if (res.data.reply) {
-    return res.data.reply;
+    if (res.data?.reply) {
+      return res.data.reply;
+    }
+
+    return "No response from AI.";
+  } catch (error) {
+    console.error("Gemini request failed:", error);
+    return "AI service is currently unavailable.";
   }
-  
-  throw new Error("GEMINI_FAILED");
 }
