@@ -1,7 +1,6 @@
 const dotenv = require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-// const serverless = require("serverless-http"); // Not needed for Vercel Express pattern
 
 const scanRoutes = require("./routes/scan.routes");
 // const aiRoutes = require("./routes/ai.routes");
@@ -18,7 +17,7 @@ app.use(cors({
 }));
 
 // Handle preflight requests explicitly
-app.options("*", cors());
+app.options(/.*/, cors());
 
 app.use(express.json());
 

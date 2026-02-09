@@ -6,7 +6,7 @@ import { Demo } from './pages/Demo';
 import { ScanPage } from './pages/ScanPage';
 import { Team } from './pages/Team';
 import { AiExplainer } from './pages/AiExplainer';
-import { SecurityChat } from './pages/SecurityChat';
+import { GeminiChatPage } from './pages/GeminiChatPage';
 import { HowItWorks } from './components/HowItWorks';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
@@ -24,7 +24,7 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/team" element={<Team />} />
             <Route path="/ai-explainer" element={<AiExplainer />} />
-            <Route path="/chat" element={<SecurityChat />} />
+            <Route path="/chat" element={<GeminiChatPage />} /> {/* Now pointing to Gemini */}
             <Route path="/demo" element={<Demo />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
           </Routes>

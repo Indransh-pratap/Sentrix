@@ -32,7 +32,7 @@ export function Header() {
             AI Explainer
           </Link>
           <Link to="/chat" className={cn("hover:text-green-400 transition-colors", location.pathname === '/chat' ? "text-green-400" : "text-gray-400")}>
-            Security Chat
+            AI Chatbot
           </Link>
           <Link to="/about" className={cn("hover:text-green-400 transition-colors", location.pathname === '/about' ? "text-green-400" : "text-gray-400")}>
             About

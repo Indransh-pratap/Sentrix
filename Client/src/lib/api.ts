@@ -4,7 +4,11 @@ import axios from "axios";
    BASE CONFIG
 ====================================================== */
 
-const API_BASE = "https://sentrix-backend-8j4r.onrender.com";
+// Automatically switch between localhost and Vercel/Production
+const API_BASE = import.meta.env.VITE_API_URL || 
+  (window.location.hostname === "localhost" 
+    ? "http://localhost:5000/api" 
+    : "/api"); // Both end with /api
 
 /* ======================================================
    BACKEND – HEALTH
@@ -87,16 +91,21 @@ export async function downloadReport(scanResult: ScanResult) {
 ====================================================== */
 
 export async function askSecurityAI(question: string): Promise<string> {
-  // Use axios to call our own backend
+  // Now simply redirects to Gemini
+  return askGeminiAI(question);
+}
+
+// New Gemini Chat Function
+export async function askGeminiAI(question: string): Promise<string> {
   const res = await axios.post(
-    `${API_BASE}/api/ai/chat`,
+    `${API_BASE}/gemini/chat`,
     { message: question },
-    { timeout: 15000 }
+    { timeout: 20000 }
   );
 
-  if (!res.data?.reply) {
-    throw new Error("AI_FAILED");
+  if (res.data.reply) {
+    return res.data.reply;
   }
-
-  return res.data.reply;
+  
+  throw new Error("GEMINI_FAILED");
 }
