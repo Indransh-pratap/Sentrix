@@ -8,29 +8,27 @@ exports.startScan = async (req, res) => {
   try {
     const result = await runScanner(url);
 
-    // 🛡️ FALSE POSITIVE FILTERING (Post-Processing)
+    // 🛡️ FALSE POSITIVE FILTERING (Disabled for now to ensure all SQLi are shown)
     // The SQLi service adds a dummy "id" param if none exist. 
-    // This often triggers false positives on generic 404/Error pages.
-    // We filter out SQLi findings for param "id" IF the original URL didn't have it.
+    // We previously filtered this, but it might hide valid findings if the user relies on auto-discovery.
+    
+    /* 
     try {
       const parsedUrl = new URL(url);
       const originalHasId = parsedUrl.searchParams.has("id");
 
       if (result.findings && Array.isArray(result.findings)) {
         result.findings = result.findings.filter(f => {
-          // Check if finding is SQLi related to "id" parameter
           if (f.type === 'SQLi' && f.detail && f.detail.includes('parameter "id"')) {
-             // Only keep it if the user actually supplied the "id" parameter
-             // Otherwise, it's the auto-generated dummy param which is prone to FPs
              return originalHasId;
           }
           return true;
         });
       }
     } catch (e) {
-      // If URL parsing fails here (unlikely since scanner ran), ignore filter
       console.warn("Post-processing filter failed:", e);
     }
+    */
 
     res.json(result);
   } catch (err) {
