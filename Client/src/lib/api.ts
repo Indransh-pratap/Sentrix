@@ -1,16 +1,18 @@
 import axios from "axios";
 
 /* ======================================================
-   BASE CONFIG (NO ENV VARIABLES)
+   BASE CONFIG (RELATIVE PATHS FOR MONOLITH)
 ====================================================== */
 
-// Auto switch between localhost (dev) and Railway (prod)
-const API_BASE =
-  window.location.hostname === "localhost"
-    ? "http://localhost:5000"
-    : "https://sentrix-production.up.railway.app";
+// When running as a monolith on Railway, the backend is the same origin.
+// For local dev with "npm run dev", we still might need the localhost URL if not proxied.
+// But simpler: just use relative paths if on same domain, or localhost if strictly local dev split.
 
-console.log("🔗 API BASE:", API_BASE);
+const API_BASE = window.location.hostname === "localhost"
+  ? "http://localhost:5000" // Local dev (split)
+  : ""; // Production (monolith) - relative path
+
+console.log("🔗 API BASE:", API_BASE || "Relative (Same Origin)");
 
 /* ======================================================
    BACKEND – HEALTH
