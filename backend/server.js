@@ -10,19 +10,21 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Serve static files from the React frontend app
-app.use(express.static(path.join(__dirname, "../Client/dist")));
-
+// health first
 app.get("/health", (req, res) => {
-  res.status(200).json({ status: "ok" });
+  res.status(200).send("OK");
 });
+
+// static
+const clientPath = path.resolve(__dirname, "../Client/dist");
+app.use(express.static(clientPath));
 
 app.use("/scan", scanRoutes);
 app.use("/gemini", geminiRoutes);
 
-// Anything that doesn't match the above, send back index.html
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../Client/dist/index.html"));
+// react fallback
+app.get("/*", (req, res) => {
+  res.sendFile(path.join(clientPath, "index.html"));
 });
 
 const PORT = process.env.PORT || 5000;

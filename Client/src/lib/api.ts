@@ -10,7 +10,7 @@ import axios from "axios";
 
 const API_BASE = window.location.hostname === "localhost"
   ? "http://localhost:5000" // Local dev (split)
-  : "https://sentrix-backend-8j4r.onrender.com"; // Production (monolith) - relative path
+  : "https://sentrix-production.up.railway.app"; // Production (monolith) - relative path
 
 console.log("🔗 API BASE:", API_BASE || "Relative (Same Origin)");
 
