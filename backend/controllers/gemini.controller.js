@@ -60,6 +60,7 @@ exports.chatWithGemini = async (req, res) => {
 function isInScope(text) {
   const t = text.toLowerCase();
   const keywords = [
+    'hello', 'hi', 'hey', // Added greetings
     'sentrix',
     'xss',
     'cross-site scripting',
