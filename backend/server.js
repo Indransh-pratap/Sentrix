@@ -1,7 +1,6 @@
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
-require("dotenv").config(); // Load env vars for local dev
 
 const scanRoutes = require("./routes/scan.routes");
 const geminiRoutes = require("./routes/gemini.routes");
@@ -11,7 +10,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// health first
+// health
 app.get("/health", (req, res) => {
   res.status(200).send("OK");
 });
@@ -20,11 +19,12 @@ app.get("/health", (req, res) => {
 const clientPath = path.resolve(__dirname, "../Client/dist");
 app.use(express.static(clientPath));
 
+// APIs
 app.use("/scan", scanRoutes);
 app.use("/gemini", geminiRoutes);
 
-// ✅ react fallback (NODE 22 SAFE)
-app.use("*", (req, res) => {
+// ✅ FINAL SPA FALLBACK (NODE 22 + EXPRESS 5 SAFE)
+app.use((req, res) => {
   res.sendFile(path.join(clientPath, "index.html"));
 });
 
