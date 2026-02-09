@@ -17,10 +17,16 @@ export function Dashboard() {
   }
 
   // 🔥 Normalize all findings (client-side + backend SQLi)
-  const findings = [
+  // scanResult.findings contains all findings from the backend (including SQLi)
+  // We keep the merge logic just in case older backend logic is used, but deduplicate based on title/detail
+  const rawFindings = [
     ...(scanResult.findings || []),
     ...(scanResult.vulnerabilities?.sqli || []),
   ];
+
+  // Simple deduplication
+  const findings = Array.from(new Set(rawFindings.map((f: any) => JSON.stringify(f))))
+    .map((s: any) => JSON.parse(s));
 
   // Re-construct the full object for PDF generation
   const fullResult = {
