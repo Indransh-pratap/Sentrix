@@ -5,10 +5,10 @@ import axios from "axios";
 ====================================================== */
 
 // Automatically switch between localhost and Vercel/Production
-const API_BASE = import.meta.env.VITE_API_URL || 
-  (window.location.hostname === "localhost" 
-    ? "http://localhost:5000/api" 
-    : "/api"); // Both end with /api
+// We use a relative path '/api' in production to leverage Vercel's rewrites
+const API_BASE = window.location.hostname === "localhost" 
+  ? "http://localhost:5000/api" 
+  : "/api";
 
 /* ======================================================
    BACKEND – HEALTH
