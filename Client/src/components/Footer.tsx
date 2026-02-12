@@ -16,15 +16,10 @@ export function Footer() {
             <span>© 2025 Sentrix. All rights reserved.</span>
           </div>
           
-          <div className="flex items-center gap-3 px-4 py-2 rounded-full bg-white/5 border border-white/10 hover:border-primary/30 transition-colors">
-            <span className="text-sm text-muted-foreground">Powered by</span>
-            <div className="flex items-center gap-1.5">
-              <Bot className="w-4 h-4 text-primary" />
-              <span className="font-semibold text-white">Trae AI</span>
-            </div>
+         
           </div>
         </div>
-      </div>
+      
     </footer>
   );
 }

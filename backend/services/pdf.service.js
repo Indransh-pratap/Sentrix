@@ -29,7 +29,7 @@ const generatePDF = (req, res) => {
       });
 
       // ---------------- HEADER ----------------
-      doc.fontSize(20).text('SENTRIX 🛡️ Security Scan Report', { align: 'center' });
+      doc.fontSize(20).text('SENTRIX Scan Report', { align: 'center' });
       doc.moveDown();
       
       doc.fontSize(12).text(`Target: ${target}`);
