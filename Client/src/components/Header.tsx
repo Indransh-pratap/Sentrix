@@ -54,8 +54,9 @@ export function Header() {
 
         {/* Mobile Menu Button */}
         <button 
-          className="md:hidden p-2 text-gray-400 hover:text-white"
+          className="md:hidden p-2 text-white hover:bg-white/10 rounded-lg transition-colors"
           onClick={toggleMenu}
+          aria-label="Toggle menu"
         >
           {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
@@ -63,7 +64,7 @@ export function Header() {
 
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-16 left-0 right-0 bg-background/95 backdrop-blur-xl border-b border-white/5 py-4 px-4 flex flex-col gap-4 shadow-xl animate-in slide-in-from-top-5">
+        <div className="md:hidden absolute top-16 left-0 right-0 bg-background/95 backdrop-blur-xl border-b border-white/5 py-4 px-4 flex flex-col gap-4 shadow-xl animate-in slide-in-from-top-5 z-50">
           <Link 
             to="/" 
             className={cn("p-2 rounded-md transition-colors", location.pathname === '/' ? "bg-white/5 text-green-400" : "text-gray-400 hover:bg-white/5 hover:text-white")}
