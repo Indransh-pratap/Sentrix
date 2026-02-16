@@ -20,7 +20,7 @@ export function ChatPage() {
       id: "1",
       role: "assistant",
       content:
-        "Hello! I'm Sentrix Security AI. I can answer questions about Sentrix, cybersecurity vulnerabilities (XSS, SQLi, etc.), and scan remediation. How can I help?",
+        "Hello! I'm Sentrix Security AI chatbot. I can answer questions about Sentrix, cybersecurity vulnerabilities (XSS, SQLi, etc.), and scan remediation. How can I help?",
     },
   ]);
 
