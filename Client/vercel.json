@@ -3,7 +3,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://sentrix-backend.up.railway.app/api/$1"
+      "destination": "https://merry-appreciation-production.up.railway.app/api/$1"
     },
     {
       "source": "/(.*)",
