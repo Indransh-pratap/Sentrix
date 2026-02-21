@@ -34,6 +34,23 @@ export function Dashboard() {
     findings: findings
   };
 
+  // Risk Data (from backend)
+  const risk = scanResult?.riskAnalysis || {};
+  const riskPercent = risk.riskPercent ?? 0;
+  const level = risk.level ?? "Unknown";
+
+  const getRiskColor = (p: number) => {
+    if (p >= 70) return "text-red-500";
+    if (p >= 40) return "text-yellow-500";
+    return "text-green-500";
+  };
+
+  const getProgressColor = (p: number) => {
+    if (p >= 70) return "bg-red-500";
+    if (p >= 40) return "bg-yellow-500";
+    return "bg-green-500";
+  };
+
   return (
     <div className="min-h-screen bg-background pb-20">
 
@@ -89,6 +106,14 @@ export function Dashboard() {
             <div className="text-sm text-muted-foreground">
               Issues Found
             </div>
+            {risk.level && (
+              <div className="text-xs text-muted-foreground mt-1 flex items-center justify-end gap-2">
+                Risk Score: 
+                <span className={`font-bold ${getRiskColor(riskPercent)}`}>
+                  {riskPercent}% ({level})
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -200,6 +225,67 @@ export function Dashboard() {
               Scan another URL
             </Link>
           </div>
+        )}
+
+        {/* ================= RISK FOOTER UI ================= */}
+        {scanResult.riskAnalysis && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="mt-12 p-6 rounded-xl border border-border bg-card/50 backdrop-blur-sm relative overflow-hidden"
+          >
+            {/* Background Glow based on Risk */}
+            <div 
+              className={`absolute inset-0 opacity-5 pointer-events-none ${getProgressColor(riskPercent)}`} 
+            />
+
+            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+              
+              <div className="flex items-center gap-4">
+                <div className={`p-3 rounded-full bg-background border border-border shadow-sm`}>
+                  <Shield className={`w-8 h-8 ${getRiskColor(riskPercent)}`} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold">Security Posture</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Current threat level analysis
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex-1 w-full md:max-w-md">
+                <div className="flex justify-between text-xs font-medium mb-2 uppercase tracking-wider text-muted-foreground">
+                  <span>Safe</span>
+                  <span>Critical</span>
+                </div>
+                <div className="h-4 bg-muted/50 rounded-full overflow-hidden border border-border/50 relative">
+                  {/* Gradient Bar */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-green-500 via-yellow-500 to-red-500 opacity-20" />
+                  
+                  {/* Indicator Pill */}
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${riskPercent}%` }}
+                    transition={{ duration: 1, ease: "easeOut" }}
+                    className={`h-full ${getProgressColor(riskPercent)} relative shadow-[0_0_10px_rgba(0,0,0,0.2)]`}
+                  >
+                    <div className="absolute right-0 top-0 bottom-0 w-1 bg-white/50" />
+                  </motion.div>
+                </div>
+              </div>
+
+              <div className="text-center md:text-right min-w-[120px]">
+                <div className={`text-3xl font-bold ${getRiskColor(riskPercent)}`}>
+                  {riskPercent}/100
+                </div>
+                <div className="text-xs font-mono uppercase tracking-widest text-muted-foreground mt-1 border border-border px-2 py-1 rounded bg-background/50">
+                  {level} ZONE
+                </div>
+              </div>
+
+            </div>
+          </motion.div>
         )}
       </div>
     </div>
