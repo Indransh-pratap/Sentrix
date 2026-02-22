@@ -1,38 +1,48 @@
 const runScanner = require("../services/scanner.service");
 const { URL } = require("url");
+const { calculateRisk } = require("../services/risk.service");
 
 exports.startScan = async (req, res) => {
   const { url } = req.body;
-  if (!url) return res.status(400).json({ error: "URL required" });
+
+  if (!url) {
+    return res.status(400).json({ error: "URL required" });
+  }
 
   try {
     const result = await runScanner(url);
 
-    // 🛡️ FALSE POSITIVE FILTERING (Disabled for now to ensure all SQLi are shown)
-    // The SQLi service adds a dummy "id" param if none exist. 
-    // We previously filtered this, but it might hide valid findings if the user relies on auto-discovery.
-    
-    /* 
-    try {
-      const parsedUrl = new URL(url);
-      const originalHasId = parsedUrl.searchParams.has("id");
+    // 🔥 Ensure findings array exists
+    const findings = Array.isArray(result.findings)
+      ? result.findings
+      : [];
 
-      if (result.findings && Array.isArray(result.findings)) {
-        result.findings = result.findings.filter(f => {
-          if (f.type === 'SQLi' && f.detail && f.detail.includes('parameter "id"')) {
-             return originalHasId;
-          }
-          return true;
-        });
-      }
-    } catch (e) {
-      console.warn("Post-processing filter failed:", e);
-    }
-    */
+    // 🔥 Normalize severity if missing
+    const normalizedFindings = findings.map((f) => ({
+      ...f,
+      severity:
+        f.severity ||
+        (f.type === "SQLi"
+          ? "Critical"
+          : f.type === "XSS"
+          ? "High"
+          : "Medium"),
+    }));
 
-    res.json(result);
+    // 🔥 Calculate Risk
+    const riskAnalysis = calculateRisk(normalizedFindings);
+
+    // 🔥 Attach to result
+    result.findings = normalizedFindings;
+    result.riskAnalysis = riskAnalysis;
+
+    return res.status(200).json(result);
+
   } catch (err) {
     console.error("Scan Controller Error:", err);
-    res.status(500).json({ error: "Scan failed", details: err.message });
+    return res.status(500).json({
+      error: "Scan failed",
+      details: err.message,
+    });
   }
 };

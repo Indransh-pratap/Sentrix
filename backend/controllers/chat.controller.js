@@ -9,7 +9,7 @@ exports.chatWithAI = async (req, res) => {
     // ==============================
     if ((!message && !attachment) || (message && typeof message !== "string")) {
       return res.status(400).json({
-        error: "Valid messages or attachment required"
+        error: "Valid message or attachment required"
       });
     }
 

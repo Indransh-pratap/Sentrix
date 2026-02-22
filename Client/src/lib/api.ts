@@ -38,7 +38,13 @@ export async function checkBackendHealth(): Promise<boolean> {
 
 export async function scanWebsite(url: string) {
   const response = await axios.post(`${API_BASE}/api/scan`, { url });
-  return response.data;
+  return response.data; 
+  // Response now contains:
+  // {
+  //   target,
+  //   findings,
+  //   riskAnalysis
+  // }
 }
 
 /*

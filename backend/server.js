@@ -4,6 +4,7 @@ require("dotenv").config();
 
 const scanRoutes = require("./routes/scan.routes");
 const chatRoutes = require("./routes/chat.routes");
+const riskRoutes = require("./routes/risk.routes");
 
 const app = express();
 
@@ -20,6 +21,8 @@ app.get("/health", (req, res) => {
    ALL APIs UNDER /api
 =====================================
 */
+
+app.use("/api/risk", riskRoutes);
 
 app.use("/api/scan", scanRoutes);
 app.use("/api/chat", chatRoutes);
